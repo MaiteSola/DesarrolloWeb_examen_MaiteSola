@@ -16,10 +16,11 @@ class Booking
     #[Groups(['booking:read', 'client:read'])]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'bookings')]
+    #[ORM\ManyToOne(inversedBy: 'bookings')] // MANTENER: Es vital para la BBDD
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull(message: "El cliente es obligatorio")]
-    #[Groups(['booking:read'])]
+    // QUITAMOS el Group 'client:read' de aquí para evitar el error circular
+    //#[Groups(['booking:read'])]
     private ?Client $client = null;
 
     #[ORM\ManyToOne(inversedBy: 'bookings')]
@@ -69,8 +70,7 @@ class Booking
         return $this->createdAt;
     }
 
-    // Método helper para cumplir con el YAML: client_id
-    #[Groups(['booking:read'])]
+    #[Groups(['booking:read', 'client:read'])]
     public function getClientId(): ?int
     {
         return $this->client?->getId();

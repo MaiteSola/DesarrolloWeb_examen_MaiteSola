@@ -13,6 +13,7 @@ use App\Service\StatisticsService;
 class ClientController extends AbstractController
 {
     // src/Controller/ClientController.php
+
     #[Route('/clients/{id}', name: 'get_client', methods: ['GET'])]
     public function show(
         Client $client,
@@ -20,7 +21,8 @@ class ClientController extends AbstractController
         #[MapQueryParameter] bool $with_statistics = false,
         #[MapQueryParameter] bool $with_bookings = false
     ): JsonResponse {
-        // Convertimos la entidad a array para manipularla o usamos Serializer dinámico
+
+        // 1. Datos básicos (siempre se devuelven)
         $data = [
             'id' => $client->getId(),
             'name' => $client->getName(),
@@ -28,14 +30,21 @@ class ClientController extends AbstractController
             'type' => $client->getType()
         ];
 
+        // 2. Lógica para Reservas
         if ($with_bookings) {
+            // Symfony serializará la colección de bookings automáticamente
             $data['activities_booked'] = $client->getBookings();
         }
 
+        // 3. Lógica para Estadísticas (El reto de los 2 puntos)
         if ($with_statistics) {
             $data['activity_statistics'] = $statsService->getClientStatistics($client->getId());
         }
 
-        return $this->json($data, 200, [], ['groups' => ['client:read', 'booking:read']]);
+        // Usamos los grupos de serialización para que los objetos internos (Booking, Activity)
+        // se vean bonitos y según el YAML
+        return $this->json($data, 200, [], [
+            'groups' => ['client:read', 'booking:read', 'activity:read']
+        ]);
     }
 }

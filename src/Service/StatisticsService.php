@@ -30,7 +30,7 @@ class StatisticsService
             );
 
             // Creamos el DTO por tipo (Spinning, etc)
-            $typeDto = new StatisticsByTypeDTO($row['activityType'], $infoDto);
+            $typeDto = new StatisticsByTypeDTO($row['activityType']->value, $infoDto);
 
             // Añadimos al array del año correspondiente
             $statsByYear[$year]->statistics[] = $typeDto;

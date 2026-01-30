@@ -36,9 +36,12 @@ class Client
     #[Groups(['client:read'])]
     private ?ClientTypeEnum $type = ClientTypeEnum::STANDARD;
 
+
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Booking::class, orphanRemoval: true)]
-    // No ponemos el grupo aquí directamente sobre la propiedad para renombrarla mediante el método de abajo
+    #[Groups(['client:read'])]
     private Collection $bookings;
+
+
 
     public function __construct()
     {
@@ -104,6 +107,6 @@ class Client
     #[SerializedName("activity_statistics")]
     public function getActivityStatistics(): array
     {
-        return []; 
+        return [];
     }
 }
