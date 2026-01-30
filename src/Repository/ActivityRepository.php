@@ -57,7 +57,7 @@ class ActivityRepository extends ServiceEntityRepository
         // 2. Filtro de plazas libres (onlyfree) 
         if ($onlyfree) {
             // Subconsulta para contar cuántos bookings tiene cada actividad
-            $subQuery = $this->_em->createQueryBuilder()
+            $subQuery = $this->getEntityManager()->createQueryBuilder()
                 ->select('count(b.id)')
                 ->from(Booking::class, 'b')
                 ->where('b.activity = a.id')

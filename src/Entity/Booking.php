@@ -22,7 +22,7 @@ class Booking
     #[Groups(['booking:read'])]
     private ?Client $client = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'bookings')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull(message: "La actividad es obligatoria")]
     #[Groups(['booking:read', 'client:read'])]

@@ -10,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\Booking;
+
 
 #[ORM\Entity(repositoryClass: ActivityRepository::class)]
 class Activity
@@ -51,9 +53,15 @@ class Activity
     #[SerializedName("play_list")]
     private Collection $songs;
 
+    #[ORM\OneToMany(mappedBy: 'activity', targetEntity: Booking::class)]
+    private Collection $bookings;
+
+
+
     public function __construct()
     {
         $this->songs = new ArrayCollection();
+        $this->bookings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -132,11 +140,41 @@ class Activity
         return $this;
     }
 
-    // Helper para el requisito de mostrar cuántos clientes hay apuntados [cite: 78]
+    /**
+     * @return Collection<int, Booking>
+     */
+    public function getBookings(): Collection
+    {
+        return $this->bookings;
+    }
+
+    public function addBooking(Booking $booking): static
+    {
+        if (!$this->bookings->contains($booking)) {
+            $this->bookings->add($booking);
+            $booking->setActivity($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBooking(Booking $booking): static
+    {
+        if ($this->bookings->removeElement($booking)) {
+            // set the owning side to null (unless already changed)
+            if ($booking->getActivity() === $this) {
+                $booking->setActivity(null);
+            }
+        }
+
+        return $this;
+    }
+
     #[Groups(['activity:read'])]
+    #[SerializedName("clients_signed")] // Esto obligará al Serializer a usar snake_case
     public function getClientsSigned(): int
     {
-        // Esto lo vincularemos cuando creemos la entidad Booking
-        return 0;
+        // Asegúrate de que este método cuente los bookings asociados
+        return $this->bookings->count();
     }
 }
