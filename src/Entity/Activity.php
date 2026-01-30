@@ -22,7 +22,7 @@ class Activity
     #[Groups(['activity:read', 'client:read', 'booking:read'])]
     private ?int $id = null;
 
-    // Usamos el Enum para el tipado estricto que pide el examen [cite: 46, 47]
+    // Usamos el Enum para el tipado estricto
     #[ORM\Column(length: 20, type: 'string', enumType: ActivityTypeEnum::class)]
     #[Assert\NotBlank(message: "El tipo de actividad es obligatorio")]
     #[Groups(['activity:read', 'client:read', 'booking:read'])]
@@ -47,7 +47,7 @@ class Activity
     #[Groups(['activity:read'])]
     private ?\DateTimeImmutable $date_end = null;
 
-    // Relación 1-M con Song (Una actividad tiene muchas canciones) [cite: 37, 517]
+    // Relación 1-M con Song (Una actividad tiene muchas canciones)
     #[ORM\OneToMany(mappedBy: 'activity', targetEntity: Song::class, orphanRemoval: true, cascade: ['persist'])]
     #[Groups(['activity:read'])]
     #[SerializedName("play_list")]
@@ -171,10 +171,9 @@ class Activity
     }
 
     #[Groups(['activity:read'])]
-    #[SerializedName("clients_signed")] // Esto obligará al Serializer a usar snake_case
+    #[SerializedName("clients_signed")]
     public function getClientsSigned(): int
     {
-        // Asegúrate de que este método cuente los bookings asociados
         return $this->bookings->count();
     }
 }

@@ -16,11 +16,9 @@ class Booking
     #[Groups(['booking:read', 'client:read'])]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'bookings')] // MANTENER: Es vital para la BBDD
+    #[ORM\ManyToOne(inversedBy: 'bookings')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull(message: "El cliente es obligatorio")]
-    // QUITAMOS el Group 'client:read' de aquí para evitar el error circular
-    //#[Groups(['booking:read'])]
     private ?Client $client = null;
 
     #[ORM\ManyToOne(inversedBy: 'bookings')]

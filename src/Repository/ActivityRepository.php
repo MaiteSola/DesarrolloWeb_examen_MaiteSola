@@ -6,6 +6,7 @@ use App\Entity\Activity;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Booking;
+use App\Enum\ActivityTypeEnum;
 
 /**
  * @extends ServiceEntityRepository<Activity>
@@ -42,13 +43,13 @@ class ActivityRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    public function findFiltered(?string $type, bool $onlyfree, int $page, int $pageSize): array
+    public function findFiltered(?ActivityTypeEnum $type, bool $onlyfree, int $page, int $pageSize, string $sort, string $order): array
     {
         $qb = $this->createQueryBuilder('a')
-            // Seleccionamos la actividad y dejamos que Doctrine maneje el resto
+
             ->select('a');
 
-        // 1. Filtro por tipo (si no es null) 
+        // 1. Filtro por tipo (si no es null)
         if ($type !== null) {
             $qb->andWhere('a.type = :type')
                 ->setParameter('type', $type);
@@ -56,7 +57,7 @@ class ActivityRepository extends ServiceEntityRepository
 
         // 2. Filtro de plazas libres (onlyfree) 
         if ($onlyfree) {
-            // Subconsulta para contar cuántos bookings tiene cada actividad
+
             $subQuery = $this->getEntityManager()->createQueryBuilder()
                 ->select('count(b.id)')
                 ->from(Booking::class, 'b')
@@ -66,8 +67,12 @@ class ActivityRepository extends ServiceEntityRepository
             $qb->andWhere('(' . $subQuery . ') < a.max_participants');
         }
 
-        // 3. Orden obligatorio por fecha descendente [cite: 1478, 1481]
-        $qb->orderBy('a.date_start', 'DESC');
+        // 3. Orden dinámico (Requisito Antigravity)
+        $allowedSorts = ['date_start', 'max_participants', 'type'];
+
+        $sortField = in_array($sort, $allowedSorts) ? "a.$sort" : 'a.date_start';
+
+        $qb->orderBy($sortField, $order);
 
         // 4. Paginación 
         $qb->setFirstResult(($page - 1) * $pageSize)

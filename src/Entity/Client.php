@@ -94,7 +94,7 @@ class Client
         return $this->bookings;
     }
 
-    // Cambio clave: Renombrado para cumplir el YAML
+    // Renombrado para cumplir el esquema YAML
     #[Groups(['client:read'])]
     #[SerializedName("activities_booked")]
     public function getActivitiesBooked(): Collection
