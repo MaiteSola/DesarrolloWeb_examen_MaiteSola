@@ -29,7 +29,7 @@ class ClientController extends AbstractController
             return $this->json(['code' => 404, 'description' => 'Cliente no encontrado'], 404);
         }
 
-        // 1. Datos básicos (siempre se devuelven)
+        // 1. Datos básicos
         $data = [
             'id' => $client->getId(),
             'name' => $client->getName(),
@@ -37,18 +37,16 @@ class ClientController extends AbstractController
             'type' => $client->getType()
         ];
 
-        // 2. Lógica para Reservas
+        // 2. Reservas
         if ($with_bookings) {
-            // Symfony serializará la colección de bookings automáticamente
             $data['activities_booked'] = $client->getBookings();
         }
 
-        // 3. Lógica para Estadísticas
+        // 3. Estadísticas
         if ($with_statistics) {
             $data['activity_statistics'] = $statsService->getClientStatistics($client->getId());
         }
 
-        // Usamos los grupos de serialización para formatear la respuesta según el YAML
         return $this->json($data, 200, [], [
             'groups' => ['client:read', 'booking:read', 'activity:read']
         ]);

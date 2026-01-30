@@ -49,13 +49,13 @@ class ActivityRepository extends ServiceEntityRepository
 
             ->select('a');
 
-        // 1. Filtro por tipo (si no es null)
+        // 1. Filtro por tipo
         if ($type !== null) {
             $qb->andWhere('a.type = :type')
                 ->setParameter('type', $type);
         }
 
-        // 2. Filtro de plazas libres (onlyfree) 
+        // 2. Filtro de plazas libres
         if ($onlyfree) {
 
             $subQuery = $this->getEntityManager()->createQueryBuilder()
@@ -67,10 +67,15 @@ class ActivityRepository extends ServiceEntityRepository
             $qb->andWhere('(' . $subQuery . ') < a.max_participants');
         }
 
-        // 3. Orden dinámico (Requisito Antigravity)
-        $allowedSorts = ['date_start', 'max_participants', 'type'];
+        // 3. Orden dinámico
+        $sortMapping = [
+            'date' => 'a.date_start',
+            'date_start' => 'a.date_start',
+            'max_participants' => 'a.max_participants',
+            'type' => 'a.type'
+        ];
 
-        $sortField = in_array($sort, $allowedSorts) ? "a.$sort" : 'a.date_start';
+        $sortField = $sortMapping[$sort] ?? 'a.date_start';
 
         $qb->orderBy($sortField, $order);
 

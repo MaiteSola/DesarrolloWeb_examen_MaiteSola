@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\BookingRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookingRepository::class)]
@@ -69,6 +70,7 @@ class Booking
     }
 
     #[Groups(['booking:read', 'client:read'])]
+    #[SerializedName("client_id")]
     public function getClientId(): ?int
     {
         return $this->client?->getId();

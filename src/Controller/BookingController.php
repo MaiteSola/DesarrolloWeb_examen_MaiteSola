@@ -20,7 +20,6 @@ class BookingController extends AbstractController
         try {
             $booking = $bookingService->createBooking($bookingInputDto);
 
-            // Usamos grupos para que la respuesta cumpla el YAML (id, activity, client_id)
             return $this->json($booking, 200, [], ['groups' => ['booking:read']]);
         } catch (\Exception $e) {
             return $this->json([
