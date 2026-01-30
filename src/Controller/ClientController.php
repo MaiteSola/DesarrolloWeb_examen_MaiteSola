@@ -8,19 +8,34 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use App\Service\StatisticsService;
 
 class ClientController extends AbstractController
 {
+    // src/Controller/ClientController.php
     #[Route('/clients/{id}', name: 'get_client', methods: ['GET'])]
     public function show(
         Client $client,
-        #[MapQueryParameter] bool $with_bookings = false,
-        #[MapQueryParameter] bool $with_statistics = false
+        StatisticsService $statsService,
+        #[MapQueryParameter] bool $with_statistics = false,
+        #[MapQueryParameter] bool $with_bookings = false
     ): JsonResponse {
-        $groups = ['client:read'];
+        // Convertimos la entidad a array para manipularla o usamos Serializer dinámico
+        $data = [
+            'id' => $client->getId(),
+            'name' => $client->getName(),
+            'email' => $client->getEmail(),
+            'type' => $client->getType()
+        ];
 
-        // La lógica de qué mostrar se controla con los SerializedGroups o condicionales
-        // Para este examen, usaremos los grupos definidos en la Entidad
-        return $this->json($client, 200, [], ['groups' => $groups]);
+        if ($with_bookings) {
+            $data['activities_booked'] = $client->getBookings();
+        }
+
+        if ($with_statistics) {
+            $data['activity_statistics'] = $statsService->getClientStatistics($client->getId());
+        }
+
+        return $this->json($data, 200, [], ['groups' => ['client:read', 'booking:read']]);
     }
 }
