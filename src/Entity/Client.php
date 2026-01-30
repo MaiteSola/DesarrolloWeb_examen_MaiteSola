@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
@@ -35,9 +36,8 @@ class Client
     #[Groups(['client:read'])]
     private ?ClientTypeEnum $type = ClientTypeEnum::STANDARD;
 
-    // Relación con las reservas (N-M a través de la entidad Booking)
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Booking::class, orphanRemoval: true)]
-    #[Groups(['client:read'])]
+    // No ponemos el grupo aquí directamente sobre la propiedad para renombrarla mediante el método de abajo
     private Collection $bookings;
 
     public function __construct()
@@ -91,11 +91,19 @@ class Client
         return $this->bookings;
     }
 
+    // Cambio clave: Renombrado para cumplir el YAML
+    #[Groups(['client:read'])]
+    #[SerializedName("activities_booked")]
+    public function getActivitiesBooked(): Collection
+    {
+        return $this->bookings;
+    }
+
     // Campo virtual para cumplir con el YAML de estadísticas
     #[Groups(['client:read'])]
+    #[SerializedName("activity_statistics")]
     public function getActivityStatistics(): array
     {
-        // Esto lo calcularemos en un Servicio más adelante
-        return [];
+        return []; 
     }
 }

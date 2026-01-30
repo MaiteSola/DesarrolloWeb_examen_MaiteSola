@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ActivityRepository::class)]
@@ -47,6 +48,7 @@ class Activity
     // Relación 1-M con Song (Una actividad tiene muchas canciones) [cite: 37, 517]
     #[ORM\OneToMany(mappedBy: 'activity', targetEntity: Song::class, orphanRemoval: true, cascade: ['persist'])]
     #[Groups(['activity:read'])]
+    #[SerializedName("play_list")]
     private Collection $songs;
 
     public function __construct()
@@ -135,6 +137,6 @@ class Activity
     public function getClientsSigned(): int
     {
         // Esto lo vincularemos cuando creemos la entidad Booking
-        return 0; 
+        return 0;
     }
 }
