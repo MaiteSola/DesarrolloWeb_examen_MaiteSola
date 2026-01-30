@@ -61,20 +61,20 @@ class BookingRepository extends ServiceEntityRepository
     }
 
     public function getStatisticsByClient(int $clientId): array
-{
-    return $this->createQueryBuilder('b')
-        ->select(
-            "SUBSTRING(a.date_start, 1, 4) as yearGroup",
-            "a.type as activityType",
-            "COUNT(a.id) as numActivities",
-            "SUM(s.duration_seconds) / 60 as totalMinutes"
-        )
-        ->join('b.activity', 'a')
-        ->join('a.songs', 's') // Unimos con canciones para sumar minutos
-        ->where('b.client = :clientId')
-        ->setParameter('clientId', $clientId)
-        ->groupBy('yearGroup', 'activityType')
-        ->getQuery()
-        ->getResult();
-}
+    {
+        return $this->createQueryBuilder('b')
+            ->select(
+                "SUBSTRING(a.date_start, 1, 4) as yearGroup",
+                "a.type as activityType",
+                "COUNT(DISTINCT a.id) as numActivities",
+                "SUM(s.duration_seconds) as totalSeconds"
+            )
+            ->join('b.activity', 'a')
+            ->join('a.songs', 's')
+            ->where('b.client = :clientId')
+            ->setParameter('clientId', $clientId)
+            ->groupBy('yearGroup', 'activityType')
+            ->getQuery()
+            ->getResult();
+    }
 }

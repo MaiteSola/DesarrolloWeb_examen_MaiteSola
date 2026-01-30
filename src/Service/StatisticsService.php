@@ -23,16 +23,18 @@ class StatisticsService
                 $statsByYear[$year] = new StatisticsByYearDTO($year);
             }
 
-            // Creamos el DTO de información (minutos y conteo)
             $infoDto = new StatisticsDTO(
                 (int)$row['numActivities'],
-                (int)$row['totalMinutes']
+                (int)($row['totalSeconds'] / 60) // Cálculo correcto de minutos
             );
 
-            // Creamos el DTO por tipo (Spinning, etc)
-            $typeDto = new StatisticsByTypeDTO($row['activityType']->value, $infoDto);
+            // Usamos ->value para extraer el string del Enum si Doctrine devuelve el objeto Enum
+            // Si devuelve string directo, quitar ->value (pero asumimos Enum por el mapeo)
+            $typeVal = $row['activityType'] instanceof \UnitEnum ? $row['activityType']->value : $row['activityType'];
 
-            // Añadimos al array del año correspondiente
+            $typeDto = new StatisticsByTypeDTO($typeVal, $infoDto);
+
+            // Añadimos al array de estadísticas usando la propiedad pública
             $statsByYear[$year]->statistics[] = $typeDto;
         }
 
