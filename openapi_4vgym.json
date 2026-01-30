@@ -1,0 +1,71 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "4V GYM Clients- OpenAPI 1.0",
+    "description": "API Specification for 4V GYM. The purpose is to list and engage of clients in activities of the GYM.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000"
+    }
+  ],
+  "paths": {
+    "/activities": {
+      "get": {
+        "tags": [ "activities" ],
+        "summary": "Find the available activities",
+        "parameters": [
+          { "name": "onlyfree", "in": "query", "schema": { "type": "boolean", "default": true } },
+          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["BodyPump", "Spinning", "Core"], "default": "BodyPump" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer" } },
+          { "name": "page_size", "in": "query", "schema": { "type": "integer" } },
+          { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["date"], "default": "date" } },
+          { "name": "order", "in": "query", "schema": { "type": "string", "enum": ["asc", "desc"], "default": "desc" } }
+        ],
+        "responses": {
+          "200": { "description": "successful operation" },
+          "400": { "description": "Any problem in the Server" }
+        }
+      }
+    },
+    "/clients/{id}": {
+      "get": {
+        "tags": [ "clients" ],
+        "summary": "Find client information, bookings and statistics",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "with_statistics", "in": "query", "schema": { "type": "boolean", "default": false } },
+          { "name": "with_bookings", "in": "query", "schema": { "type": "boolean", "default": false } }
+        ],
+        "responses": {
+          "200": { "description": "successful operation" }
+        }
+      }
+    },
+    "/bookings": {
+      "post": {
+        "tags": [ "bookings" ],
+        "summary": "Book an activity by a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "activity_id": { "type": "integer", "example": 2 },
+                  "client_id": { "type": "integer", "example": 12 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Successful operation" },
+          "400": { "description": "Validation Error" }
+        }
+      }
+    }
+  }
+}
